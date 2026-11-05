@@ -1,0 +1,124 @@
+{
+  "name": "merge-open-docs",
+  "displayName": "Merge Open Docs",
+  "description": "将 VS Code 当前打开的所有文本文件合并到一个新的 Untitled 文档。",
+  "version": "0.1.3",
+  "publisher": "local",
+  "author": "wanggang <76527413@qq.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nbaxp/merge-open-docs.git"
+  },
+  "homepage": "https://github.com/nbaxp/merge-open-docs#readme",
+  "bugs": {
+    "url": "https://github.com/nbaxp/merge-open-docs/issues"
+  },
+  "keywords": [
+    "vscode",
+    "vscode-extension",
+    "merge",
+    "markdown",
+    "documents",
+    "clipboard"
+  ],
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "scripts": {
+    "package": "vsce package --out merge-open-docs.vsix"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "mergeOpenDocs.copyAll",
+        "title": "Merge Open Docs: 合并所有打开文档"
+      },
+      {
+        "command": "mergeOpenDocs.copyAllMinified",
+        "title": "Merge Open Docs: 合并所有打开文档并压缩"
+      },
+      {
+        "command": "mergeOpenDocs.copyDirectory",
+        "title": "Merge Open Docs: 合并选中的文件/目录"
+      },
+      {
+        "command": "mergeOpenDocs.copyDirectoryMinified",
+        "title": "Merge Open Docs: 合并选中的文件/目录并压缩"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "mergeOpenDocs.copyAll",
+        "key": "ctrl+alt+m"
+      },
+      {
+        "command": "mergeOpenDocs.copyAllMinified",
+        "key": "ctrl+alt+shift+m"
+      }
+    ],
+    "menus": {
+      "editor/title/context": [
+        {
+          "command": "mergeOpenDocs.copyAll",
+          "group": "navigation@100"
+        },
+        {
+          "command": "mergeOpenDocs.copyAllMinified",
+          "group": "navigation@101"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "mergeOpenDocs.copyDirectory",
+          "when": "resourceScheme == 'file'",
+          "group": "navigation@100"
+        },
+        {
+          "command": "mergeOpenDocs.copyDirectoryMinified",
+          "when": "resourceScheme == 'file'",
+          "group": "navigation@101"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Merge Open Docs",
+      "properties": {
+        "mergeOpenDocs.excludeDirectories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "node_modules",
+            "logs",
+            "dist"
+          ],
+          "description": "合并目录时排除的目录名称。匹配目录名，不区分大小写。名称以 '.' 开头的目录始终默认排除。"
+        },
+        "mergeOpenDocs.excludeFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "*.min.*"
+          ],
+          "description": "合并目录时排除的文件名称或简单通配符模式，支持 * 和 ?。"
+        },
+        "mergeOpenDocs.excludeDotFiles": {
+          "type": "boolean",
+          "default": true,
+          "description": "合并目录时是否排除名称以 '.' 开头的文件。"
+        }
+      }
+    }
+  }
+}
