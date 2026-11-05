@@ -1,0 +1,55 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Only build the VSIX and skip publishing'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm install -g @vscode/vsce
+
+      - name: Verify tag matches package.json version
+        if: github.ref_type == 'tag'
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $PKG_VERSION"
+            exit 1
+          fi
+
+      - run: vsce package --out merge-open-docs.vsix
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: merge-open-docs-vsix
+          path: merge-open-docs.vsix
+
+      - name: Publish to Visual Studio Marketplace
+        if: github.event_name == 'push' || inputs.dry_run == false
+        run: vsce publish --oidc
+
+      - name: Create GitHub release
+        if: github.ref_type == 'tag' && (github.event_name == 'push' || inputs.dry_run == false)
+        run: gh release create "$GITHUB_REF_NAME" merge-open-docs.vsix --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
